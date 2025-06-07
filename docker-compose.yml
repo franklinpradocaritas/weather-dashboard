@@ -1,0 +1,98 @@
+#version: '3.8'
+services:
+  backend:
+    build: ./backend
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: ["npm", "run", "dev"]
+    environment:
+      - DATABASE_URL=postgres://user:password@db:5432/weather
+      # - REDIS_URL=redis://:your_secure_password@redis:6379
+      # - REDIS_URL=redis://cache
+      - REDIS_URL=redis://redis_cache
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+      - USER_TOKEN_HEADER=${USER_TOKEN_HEADER}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=your_secure_password
+      - PORT=5000
+    ports:
+      - "5050:5000"
+    # networks:
+    #   - backend_network
+    depends_on:
+      - db
+      - redis
+    links:
+      - redis
+
+  frontend:
+    # build: ./frontend
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_USER_TOKEN_HEADER=${USER_TOKEN_HEADER}
+    volumes:
+      - ./frontend:/usr/src/app/frontend
+      - /usr/src/app/frontend/node_modules
+  db:
+    image: postgres:13
+    # container_name: postgres_db
+    restart: always
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/01.init.sql:/docker-entrypoint-initdb.d/01.init.sql
+      - ./db/02.data_seed.sql:/docker-entrypoint-initdb.d/02.data_seed.sql
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: weather
+    ports:
+      - "5432:5432"
+    # networks:
+    #   - backend_network
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgadmin4_container
+  #   restart: always
+  #   ports:
+  #     - "8888:80"
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: user@domain-name.com
+  #     PGADMIN_DEFAULT_PASSWORD: password
+  #   depends_on:
+  #     - db
+  #   # volumes:
+  #   #   - pgadmin-data:/var/lib/pgadmin
+
+  # redis:
+  #   # image: redis:alpine
+  #   image: redis
+  #   command: ["redis-server", "--requirepass", "your_secure_password"]
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+
+  redis:
+    image: redis
+    container_name: redis_cache
+    expose:
+      - 6379
+    volumes:
+      - redis_data:/data
+    # networks:
+    #   - backend_network
+
+volumes:
+  db_data:
+  redis_data:
+# networks:
+  # backend_network:
+  #   driver: bridge

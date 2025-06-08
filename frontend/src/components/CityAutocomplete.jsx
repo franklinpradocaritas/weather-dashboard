@@ -1,104 +1,81 @@
-// frontend/src/components/CityAutocomplete.jsx
+// src/components/CityAutocomplete.jsx
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 
-export default function CityAutocomplete({ onSelect }) {
+export default function CityAutocomplete({
+    onSelect,
+    placeholder = 'Escribe una ciudad...',
+}) {
     const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [show, setShow] = useState(false);
+    const containerRef = useRef(null);
     const debounceRef = useRef(null);
 
+    // Petición con debounce
     useEffect(() => {
-        if (debounceRef.current) clearTimeout(debounceRef.current);
-        if (query.trim().length === 0) {
+        if (!query.trim()) {
             setSuggestions([]);
             return;
         }
-
+        clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(async () => {
             try {
-                setLoading(true);
                 const res = await axios.get(
                     `${process.env.REACT_APP_API_URL}/weather/autocomplete`,
-                    { params: { q: query, limit: 10 } }
+                    { params: { q: query, limit: 5 } }
                 );
                 setSuggestions(res.data);
-                setError(null);
-            } catch (err) {
-                console.log('****** Error fetching suggestions:', err);
-
-                setError('Error fetching suggestions');
+                setShow(true);
+            } catch {
                 setSuggestions([]);
-            } finally {
-                setLoading(false);
             }
         }, 300);
-
         return () => clearTimeout(debounceRef.current);
     }, [query]);
 
+    // Cerrar dropdown al hacer clic fuera
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (
+                containerRef.current &&
+                !containerRef.current.contains(e.target)
+            ) {
+                setShow(false);
+            }
+        };
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
+
     const handleSelect = (item) => {
-        setQuery(item.name + ', ' + item.country);
-        setSuggestions([]);
-        console.log('Autoocomplete selected:', { item });
         onSelect(item);
+        setQuery(`${item.name}, ${item.country}`);
+        setShow(false);
     };
 
     return (
-        <div style={{ position: 'relative', width: '100%', maxWidth: 400 }}>
+        <div ref={containerRef} className='position-relative'>
             <input
                 type='text'
-                placeholder='Type city name...'
+                className='form-control'
+                placeholder={placeholder}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                style={{ width: '100%', padding: '8px' }}
+                onFocus={() => suggestions.length && setShow(true)}
             />
-            {loading && (
-                <div style={{ position: 'absolute', top: '100%', left: 0 }}>
-                    Loading...
-                </div>
-            )}
-            {error && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: '100%',
-                        left: 0,
-                        color: 'red',
-                    }}
-                >
-                    {error}
-                </div>
-            )}
-            {suggestions.length > 0 && (
-                <ul
-                    style={{
-                        position: 'absolute',
-                        top: '100%',
-                        left: 0,
-                        right: 0,
-                        background: 'white',
-                        border: '1px solid #ccc',
-                        margin: 0,
-                        padding: 0,
-                        listStyle: 'none',
-                        maxHeight: 200,
-                        overflowY: 'auto',
-                        zIndex: 10,
-                    }}
-                >
+
+            {show && suggestions.length > 0 && (
+                <ul className='dropdown-menu show w-100 mt-0'>
                     {suggestions.map((item, idx) => (
-                        <li
-                            key={`${item.name}-${item.lat}-${item.lon}-${idx}`}
-                            onClick={() => handleSelect(item)}
-                            style={{
-                                padding: '8px',
-                                cursor: 'pointer',
-                                borderBottom: '1px solid #eee',
-                            }}
-                        >
-                            {item.name}, {item.country}
+                        <li key={`${item.name}-${idx}`}>
+                            <button
+                                type='button'
+                                className='dropdown-item'
+                                onClick={() => handleSelect(item)}
+                            >
+                                {item.name}, {item.country}
+                            </button>
                         </li>
                     ))}
                 </ul>

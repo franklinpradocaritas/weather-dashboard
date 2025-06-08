@@ -1,38 +1,3 @@
-// import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-
-// // import ProtectedRoute from '@/components/ProtectedRoute';
-// // import { AuthProvider } from '@/context/AuthContext';
-// import ProtectedRoute from 'components/ProtectedRoute';
-// import { AuthProvider } from 'context/AuthContext';
-
-// import DashboardPage from './pages/DashboardPage';
-// import LoginPage from './pages/LoginPage';
-
-// function App() {
-//     return (
-//         <AuthProvider>
-//             <Router>
-//                 <Routes>
-//                     <Route path="/login" element={<LoginPage />} />
-
-//                     <Route
-//                         path="/"
-//                         element={
-//                             <ProtectedRoute>
-//                                 <DashboardPage />
-//                             </ProtectedRoute>
-//                         }
-//                     />
-//                 </Routes>
-//             </Router>
-//         </AuthProvider>
-//     );
-// }
-
-// export default App;
-
-
-// ======================================================================
 
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
@@ -41,26 +6,31 @@ import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 
+import { FavoritesProvider } from './context/FavoritesContext';
+import { HistoryProvider } from './context/HistoryContext';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
 
 function App() {
     return (
         <AuthProvider>
-            <Router>
-                <Routes>
-                    <Route path="/login" element={<LoginPage />} />
-
-                    <Route
-                        path="/"
-                        element={
-                            <ProtectedRoute>
-                                <DashboardPage />
-                            </ProtectedRoute>
-                        }
-                    />
-                </Routes>
-            </Router>
+            <FavoritesProvider>
+                <HistoryProvider>
+                    <Router>
+                        <Routes>
+                            <Route path="/login" element={<LoginPage />} />
+                            <Route
+                                path="/"
+                                element={
+                                    <ProtectedRoute>
+                                        <DashboardPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+                        </Routes>
+                    </Router>
+                </HistoryProvider>
+            </FavoritesProvider>
         </AuthProvider>
     );
 }

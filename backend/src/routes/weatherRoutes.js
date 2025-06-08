@@ -12,8 +12,9 @@ router.get('/forecast/:city', weatherController.getForecast);
 router.post('/favorites', auth, weatherController.addFavorite);
 // router.post('/favorites', weatherController.addFavorite);
 router.get('/favorites', auth, weatherController.getFavorites);
-router.delete('/favorites/:id', weatherController.removeFavorite);
-router.get('/history', weatherController.getHistory);
+router.delete('/favorites/:id', auth, weatherController.removeFavorite);
+router.get('/history', auth, weatherController.getHistory);
+router.delete('/history', auth, weatherController.clearHistory);
 router.get('/autocomplete', weatherController.getCitySuggestions);
 
 module.exports = router;

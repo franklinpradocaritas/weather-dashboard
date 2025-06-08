@@ -14,7 +14,6 @@ exports.getUserByUsername = async (req, res, next) => {
     try {
         const username = req.params.username;
         const data = await adminService.getUserByUsername(username);
-        console.log('*****COntroller - User found:', data);
 
         res.json(data);
     } catch (err) {
@@ -24,13 +23,8 @@ exports.getUserByUsername = async (req, res, next) => {
 
 exports.getUserById = async (req, res, next) => {
     try {
-        console.log("==========================================");
-
         const userId = req.params.userId;
-        console.log('*****Controller - Getting user by ID:', { userId });
         const data = await adminService.getUserById(userId);
-        console.log('*****Controller - User found:', data);
-
         res.json(data);
     } catch (err) {
         next(err);

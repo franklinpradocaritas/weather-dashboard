@@ -8,12 +8,8 @@ exports.addUser = async (username) => {
 
 exports.getUserByUsername = async (username) => {
     try {
-        console.log('*****SELECTING USER BY USERNAME:', username);
-
         const query = 'SELECT * FROM users WHERE username= $1';
         const { rows } = await db.query(query, [username]);
-        console.log('*****USER FOUND:', rows);
-
         return rows[0];
     } catch (err) {
         console.error('Error finding username:', err);
@@ -23,12 +19,8 @@ exports.getUserByUsername = async (username) => {
 
 exports.getUserById = async (userId) => {
     try {
-        console.log('*****SELECTING USER BY ID:', userId);
-
         const query = 'SELECT * FROM users WHERE id= $1';
         const { rows } = await db.query(query, [userId]);
-        console.log('*****USER FOUND:', rows);
-
         return rows[0];
     } catch (err) {
         console.error('Error finding ID:', err);

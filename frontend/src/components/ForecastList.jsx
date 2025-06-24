@@ -1,12 +1,15 @@
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useEffect, useState } from 'react';
+import { useTemperatureUnit } from '../context/TemperatureUnitContext';
 import api from '../services/api';
 import { formatShortDate } from '../utils/TimeUtils';
+import TemperatureUnit from './atoms/TemperaturaUnit';
 
 export default function ForecastList({ city }) {
     const [forecast, setForecast] = useState(null);
     const [error, setError] = useState(null);
+    const { unit } = useTemperatureUnit();
 
     useEffect(() => {
         if (!city) return;
@@ -21,15 +24,15 @@ export default function ForecastList({ city }) {
                 setForecast(res.data);
             })
             .catch((err) => setError(err.message));
-    }, [city]);
+    }, [city, unit]);
 
     const handleShortDate = (date) => {
-        console.log('01.WEATHER SHORT DATE::', date);
+        // console.log('01.WEATHER SHORT DATE::', date);
 
         const dateObj = new Date(date * 1000);
         // return formatShortDate(dateObj);
         const shortDate = formatShortDate(dateObj);
-        console.log('02.WEATHER SHORT DATE::', shortDate);
+        // console.log('02.WEATHER SHORT DATE::', shortDate);
         return shortDate;
     };
 
@@ -54,7 +57,8 @@ export default function ForecastList({ city }) {
                                         style={{ fontSize: '2rem' }}
                                     ></i>
                                     <h6 className='mb-1'>
-                                        {Math.round(day.main_temp)}°C
+                                        {Math.round(day.main_temp)}
+                                        <TemperatureUnit />
                                     </h6>
                                     <p className='text-muted small mb-0 text-capitalize'>
                                         {day.weather_description}

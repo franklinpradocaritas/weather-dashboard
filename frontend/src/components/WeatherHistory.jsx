@@ -57,15 +57,13 @@ export default function WeatherHistory() {
     };
 
     return (
-        <div className='card shadow-sm mb-4'>
-            {/* Cabecera */}
-            <div className='card-header d-flex align-items-center'>
-                <i className='bi bi-clock-history me-2'></i>
-                <h5 className='mb-0'>Search History</h5>
-            </div>
-
+        <div className='card shadow-sm mb-4 h-100'>
             {/* Cuerpo */}
             <div className='card-body'>
+                <div className='d-flex align-items-center mb-4'>
+                    <i className='bi bi-clock-history me-2'></i>
+                    <h5 className='mb-0'>Search History</h5>
+                </div>
                 {history.length === 0 ? (
                     <p className='text-muted mb-0'>No search history yet.</p>
                 ) : (

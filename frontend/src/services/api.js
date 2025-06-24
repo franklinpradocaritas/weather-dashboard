@@ -1,5 +1,6 @@
 
 import axios from 'axios';
+import { getCurrentTemperatureUnit } from '../context/TemperatureUnitContext';
 // import { toast } from 'react-toastify';
 
 const api = axios.create({
@@ -9,14 +10,23 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
-        // const stored = localStorage.getItem('currentUser');
+        const unit = getCurrentTemperatureUnit();
+        const additionalParams = {
+            units: unit // Temperature Unit
+        };
+        const existingParams = config.params || {};
+
+        // Unimos los parámetros existentes con los nuevos
+        config.params = {
+            ...existingParams,
+            ...additionalParams,
+        };
         // if (stored) {
         //     const user = JSON.parse(stored);
         //     config.headers['x-user-token'] = "user.id";
         // }
-        console.log("*******Request Interceptor - User token header:", `${process.env.REACT_APP_USER_TOKEN_HEADER}`);
-
-        // config.headers[process.env.REACT_APP_USER_TOKEN_HEADER] = "USER_TOKEN"; // Reemplaza USER_TOKEN con el token real del usuario autenticado
+        // console.log("*******Request Interceptor - User token header:", { params: config.params });
+        // config.headers[process.env.REACT_APP_USER_TOKEN_HEADER] = "USER_TOKEN";
         return config;
     },
     (error) => {

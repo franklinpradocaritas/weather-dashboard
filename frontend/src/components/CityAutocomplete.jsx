@@ -4,13 +4,14 @@ import { useEffect, useRef, useState } from 'react';
 
 export default function CityAutocomplete({
     onSelect,
-    placeholder = 'Escribe una ciudad...',
+    placeholder = 'Search city...',
 }) {
     const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [show, setShow] = useState(false);
     const containerRef = useRef(null);
     const debounceRef = useRef(null);
+    const justSelectedRef = useRef(false);
 
     // Petición con debounce
     useEffect(() => {
@@ -20,6 +21,7 @@ export default function CityAutocomplete({
         }
         clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(async () => {
+            if (justSelectedRef.current) return;
             try {
                 const res = await axios.get(
                     `${process.env.REACT_APP_API_URL}/weather/autocomplete`,
@@ -30,7 +32,7 @@ export default function CityAutocomplete({
             } catch {
                 setSuggestions([]);
             }
-        }, 300);
+        }, 400);
         return () => clearTimeout(debounceRef.current);
     }, [query]);
 
@@ -49,9 +51,16 @@ export default function CityAutocomplete({
     }, []);
 
     const handleSelect = (item) => {
+        justSelectedRef.current = true;
         onSelect(item);
         setQuery(`${item.name}, ${item.country}`);
         setShow(false);
+        setSuggestions([]);
+    };
+
+    const handleChange = (e) => {
+        justSelectedRef.current = false;
+        setQuery(e.target.value);
     };
 
     return (
@@ -61,7 +70,7 @@ export default function CityAutocomplete({
                 className='form-control'
                 placeholder={placeholder}
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={handleChange}
                 onFocus={() => suggestions.length && setShow(true)}
             />
 

@@ -3,7 +3,9 @@ const weatherService = require('../services/weatherService');
 exports.getCurrentWeather = async (req, res, next) => {
     try {
         const userToken = req.headers[process.env.USER_TOKEN_HEADER];
-        const data = await weatherService.fetchCurrentWeather(req.params.city, userToken);
+        const units = req.query.units;
+        console.log("--- CURRENT WEASTHER params:::", { units, userToken });
+        const data = await weatherService.fetchCurrentWeather(req.params.city, userToken, units);
         res.json(data);
     } catch (err) {
         next(err);
@@ -12,7 +14,8 @@ exports.getCurrentWeather = async (req, res, next) => {
 
 exports.getForecast = async (req, res, next) => {
     try {
-        const data = await weatherService.fetchForecast(req.params.city);
+        const units = req.query.units;
+        const data = await weatherService.fetchForecast(req.params.city, units);
         res.json(data);
     } catch (err) {
         next(err);

@@ -18,34 +18,9 @@ const DashboardPage = () => {
         if (last) setSelectedCity({ name: last });
     }, []);
 
-    const handleUnitToggle = (isFahrenheit) => {
-        console.log(isFahrenheit ? 'Ahora °F' : 'Ahora °C');
-        // aquí puedes actualizar tu estado global / Context
-    };
-
     return (
         <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-            {/* <h1>Dashboard</h1>
-            {user ? (
-                <p>
-                    Hola, <strong>{user.name}</strong> (logueado).
-                </p>
-            ) : (
-                <p>Estás navegando como invitado.</p>
-            )}
-            <button
-                onClick={() => {
-                    logout();
-                }}
-                style={styles.logoutButton}
-            >
-                Cerrar sesión
-            </button>
-            <p>
-                Esta es una página protegida que solo se ve si estás autenticado
-                o como invitado.
-            </p> */}
-            <Header onToggle={handleUnitToggle} />
+            <Header />
             <SearchBar onCityChosen={setSelectedCity} />
             {selectedCity && (
                 <>
@@ -53,8 +28,14 @@ const DashboardPage = () => {
                     <ForecastList city={selectedCity} />
                 </>
             )}
-            <FavoritesList />
-            <WeatherHistory />
+            <div className='row'>
+                <div className='col-6'>
+                    <FavoritesList />
+                </div>
+                <div className='col-6'>
+                    <WeatherHistory />
+                </div>
+            </div>
         </div>
     );
 };

@@ -62,11 +62,14 @@
 // frontend/src/components/WeatherCard.jsx
 import { useContext, useEffect, useState } from 'react';
 import { FavoritesContext } from '../context/FavoritesContext';
+import { useTemperatureUnit } from '../context/TemperatureUnitContext';
 import api from '../services/api';
 import { formatShortDate, formatShortTime } from '../utils/TimeUtils';
+import TemperatureUnit from './atoms/TemperaturaUnit';
 
 export default function WeatherCard({ city }) {
     const { refreshFavorites } = useContext(FavoritesContext);
+    const { unit } = useTemperatureUnit();
     const [current, setCurrent] = useState(null);
     const [saving, setSaving] = useState(false);
 
@@ -75,7 +78,7 @@ export default function WeatherCard({ city }) {
         api.get(`${process.env.REACT_APP_API_URL}/weather/current/${city.name}`)
             .then((r) => setCurrent(r.data))
             .catch(console.error);
-    }, [city]);
+    }, [city, unit]);
 
     const handleSaveFavorite = async () => {
         if (!current) return;
@@ -98,20 +101,13 @@ export default function WeatherCard({ city }) {
     };
 
     const handleTime = (date) => {
-        console.log('01.WEATHER TIME::', date);
-
         const dateObj = new Date(date * 1000);
-        console.log('02.WEATHER TIME::', dateObj);
         return formatShortTime(dateObj);
     };
 
     const handleShortDate = (date) => {
-        console.log('01.WEATHER SHORT DATE::', date);
-
         const dateObj = new Date(date * 1000);
-        // return formatShortDate(dateObj);
         const shortDate = formatShortDate(dateObj);
-        console.log('02.WEATHER SHORT DATE::', shortDate);
         return shortDate;
     };
 
@@ -231,14 +227,16 @@ export default function WeatherCard({ city }) {
                             ></i>
                             <div className='ms-3'>
                                 <h1 className='display-4 mb-0'>
-                                    {Math.round(current.main.temp)} °C
+                                    {Math.round(current.main.temp)}{' '}
+                                    <TemperatureUnit />
                                 </h1>
                                 <p className='mb-0 text-capitalize'>
                                     {current.weather[0].description}
                                 </p>
                                 <small className='text-muted'>
                                     Feels like{' '}
-                                    {Math.round(current.main.feels_like)} °C
+                                    {Math.round(current.main.feels_like)}{' '}
+                                    <TemperatureUnit />
                                 </small>
                             </div>
                         </div>

@@ -5,8 +5,8 @@ const { addFavorite, getFavorites, deleteFavorite } = require('../models/favorit
 const { summarizeFiveDayForecast } = require('../utils/arrayUtils');
 const apiKey = process.env.OPENWEATHER_API_KEY;
 
-exports.fetchCurrentWeather = async (city, userToken) => {
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+exports.fetchCurrentWeather = async (city, userToken, units) => {
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${units ?? 'metric'}`;
     const res = await axios.get(url);
     if (userToken) {
         await saveHistory(city, res.data, userToken);
@@ -16,8 +16,8 @@ exports.fetchCurrentWeather = async (city, userToken) => {
     return res.data;
 };
 
-exports.fetchForecast = async (city) => {
-    const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric&cnt=0`;
+exports.fetchForecast = async (city, units) => {
+    const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=${units ?? 'metric'}&cnt=0`;
 
     const response = await axios.get(url);
     if (!response.data) {

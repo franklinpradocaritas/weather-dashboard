@@ -50,7 +50,7 @@ export default function FavoritesList() {
     };
 
     return (
-        <div className='card shadow-sm mb-4'>
+        <div className='card shadow-sm mb-4 h-100'>
             <div className='card-body'>
                 <div className='d-flex align-items-center mb-4'>
                     <i className='bi bi-star-fill text-warning me-2'></i>

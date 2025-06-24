@@ -11,7 +11,7 @@ exports.fetchCurrentWeather = async (city, userToken, units) => {
     if (userToken) {
         await saveHistory(city, res.data, userToken);
     }
-    console.log("current WEATHER:", { city, data: res.data });
+    // console.log("current WEATHER:", { city, data: res.data });
 
     return res.data;
 };
@@ -67,5 +67,6 @@ exports.fetchCitySuggestions = async (query, limit = 10) => {
 exports.addFavoriteCity = addFavorite;
 exports.getFavoriteCities = getFavorites;
 exports.removeFavoriteCity = deleteFavorite;
+
 exports.getSearchHistory = getHistory;
 exports.clearHistory = clearHistory;

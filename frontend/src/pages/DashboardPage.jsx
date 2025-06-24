@@ -5,14 +5,13 @@ import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
 import WeatherCard from '../components/WeatherCard';
 import WeatherHistory from '../components/WeatherHistory';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
 
 const DashboardPage = () => {
     const { user, isAnonymous, logout } = useAuth();
 
     const [selectedCity, setSelectedCity] = useState(null);
 
-    // Opcional: si quieres que al recargar use la última ciudad:
     useEffect(() => {
         const last = localStorage.getItem('lastCity');
         if (last) setSelectedCity({ name: last });
@@ -28,14 +27,16 @@ const DashboardPage = () => {
                     <ForecastList city={selectedCity} />
                 </>
             )}
-            <div className='row'>
-                <div className='col-6'>
-                    <FavoritesList />
+            {!isAnonymous && (
+                <div className='row'>
+                    <div className='col-6'>
+                        <FavoritesList />
+                    </div>
+                    <div className='col-6'>
+                        <WeatherHistory />
+                    </div>
                 </div>
-                <div className='col-6'>
-                    <WeatherHistory />
-                </div>
-            </div>
+            )}
         </div>
     );
 };

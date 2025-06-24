@@ -1,46 +1,21 @@
 import { useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
+import { useHistory } from '../context/HistoryContext';
 import CityAutocomplete from './CityAutocomplete';
 
 export default function SearchBar({ onCityChosen }) {
     const [selectedCity, setSelectedCity] = useState(null);
     const { logout } = useAuth();
+    const { refreshHistory } = useHistory();
 
     const handleSelect = (cityObj) => {
+        refreshHistory();
         setSelectedCity(cityObj);
         onCityChosen(cityObj);
     };
 
     return (
         <nav className='navbar navbar-expand-lg navbar-light bg-light mb-3'>
-            {/* <div className='container-fluid'>
-                <a className='navbar-brand' href='/'>
-                    WeatherApp
-                </a>
-
-                <form
-                    className='d-flex ms-auto'
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        if (selectedCity) onCityChosen(selectedCity);
-                    }}
-                >
-                    <div className='input-group'>
-                        <CityAutocomplete
-                            onSelect={handleSelect}
-                            inputClass='form-control'
-                            dropdownClass='dropdown-menu'
-                        />
-                        <button
-                            className='btn btn-primary'
-                            type='submit'
-                            disabled={!selectedCity}
-                        >
-                            Buscar
-                        </button>
-                    </div>
-                </form>
-            </div> */}
             <div className='container d-flex flex-wrap justify-content-center'>
                 <form
                     className='col-12 col-lg-auto mb-2 mb-lg-0 me-lg-auto'
@@ -48,7 +23,6 @@ export default function SearchBar({ onCityChosen }) {
                 >
                     <CityAutocomplete
                         onSelect={handleSelect}
-                        // Pasa clases Bootstrap a sus props de input y dropdown
                         inputClass='form-control'
                         dropdownClass='dropdown-menu'
                     />

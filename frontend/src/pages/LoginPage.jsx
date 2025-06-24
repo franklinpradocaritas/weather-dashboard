@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
@@ -56,51 +56,10 @@ const LoginPage = () => {
             </button>
         </div>
     );
-
-    //============================================
-    // const navigate = useNavigate();
-    // const location = useLocation();
-    // // const auth = useAuth();
-    // const { login } = useAuth();
-
-    // const from = location.state?.from?.pathname || '/';
-
-    // function handleSubmit(event) {
-    //     event.preventDefault();
-
-    //     const formData = new FormData(event.currentTarget);
-    //     const username = formData.get('username');
-
-    //     console.log('Username:', username);
-
-    //     // useLogin(username);
-    //     // useLogin
-    //     login(username.trim());
-    //     // useAuth().login({ name: username.trim() });
-    //     navigate(from, { replace: true });
-
-    //     // auth.signIn(username, () => {
-    //     //     navigate(from, { replace: true });
-    //     // });
-    // }
-
-    // return (
-    //     <div className='container'>
-    //         <h1>Login Page</h1>
-    //         <form onSubmit={handleSubmit}>
-    //             {/* <form> */}
-    //             <label>
-    //                 Username: <input name='username' type='text' />
-    //             </label>{' '}
-    //             <button type='submit'>Login</button>
-    //         </form>
-    //     </div>
-    // );
 };
 
 export default LoginPage;
 
-// Estilos simples para el ejemplo (podrías usar tu propio CSS ó CSS Modules)
 const styles = {
     container: {
         maxWidth: '400px',

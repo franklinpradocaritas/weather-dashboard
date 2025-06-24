@@ -19,12 +19,12 @@ export default function ToggleTemperatureUnit() {
     return (
         <>
             <span className='me-2'>°C</span>
-            <div className='form-check form-switch me-2'>
+            <div className='form-check form-switch me-1'>
                 <input
                     className='form-check-input'
                     type='checkbox'
                     role='switch'
-                    id='temperatureUnitSwitch2'
+                    id='temperatureUnitSwitch'
                     checked={value}
                     onChange={handleUnitToggle}
                 />

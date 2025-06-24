@@ -1,6 +1,5 @@
-// import useAuth from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
     const { user, isAnonymous } = useAuth();

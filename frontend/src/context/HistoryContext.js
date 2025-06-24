@@ -7,25 +7,32 @@ import {
     useState
 } from 'react';
 import api from '../services/api';
-import { AuthContext } from './AuthContext';
+import { useAuth } from './AuthContext';
 
 export const HistoryContext = createContext({
     history: [],
-    refreshHistory: () => Promise.resolve()
+    refreshHistory: () => Promise.resolve(),
+    clearHistory: () => Promise.resolve()
 });
 
 export const HistoryProvider = ({ children }) => {
-    const { user, isAnonymous } = useContext(AuthContext);
+    const { user, isAnonymous } = useAuth();
     const [history, setHistory] = useState([]);
 
     const refreshHistory = useCallback(async () => {
         try {
-            console.log("=======BEFORE API CALL - HistoryProvider - User:", user);
             const res = await api.get(`${process.env.REACT_APP_API_URL}/weather/history`);
-            console.log("=======AFTER API CALL - HistoryProvider - Response:", res.data);
             setHistory(res.data);
         } catch (err) {
             console.error('Error loading history', err);
+        }
+    }, []);
+
+    const clearHistory = useCallback(async () => {
+        try {
+            setHistory([]);
+        } catch (err) {
+            console.error('Error clearing history', err);
         }
     }, []);
 
@@ -38,8 +45,10 @@ export const HistoryProvider = ({ children }) => {
     }, [user, isAnonymous, refreshHistory]);
 
     return (
-        <HistoryContext.Provider value={{ history, refreshHistory }}>
+        <HistoryContext.Provider value={{ history, refreshHistory, clearHistory }}>
             {children}
         </HistoryContext.Provider>
     );
 };
+
+export const useHistory = () => useContext(HistoryContext);

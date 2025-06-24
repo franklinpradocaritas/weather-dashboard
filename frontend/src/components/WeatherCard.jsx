@@ -1,82 +1,32 @@
-// import { useEffect, useState } from 'react';
-// import api from '../services/api';
-
-// export default function WeatherCard({ city }) {
-//     const [current, setCurrent] = useState(null);
-//     const [error, setError] = useState(null);
-//     const [saving, setSaving] = useState(false);
-
-//     useEffect(() => {
-//         if (!city) return;
-
-//         api.get(`${process.env.REACT_APP_API_URL}/weather/current/${city.name}`)
-//             .then((res) => setCurrent(res.data))
-//             .catch((err) => setError(err.message));
-//     }, [city]);
-
-//     const handleSaveFavorite = async () => {
-//         if (!current) return;
-//         setSaving(true);
-//         try {
-//             // await axios.post(
-//             await api.post(
-//                 `${process.env.REACT_APP_API_URL}/weather/favorites`,
-//                 {
-//                     city_name: current.name,
-//                     country_code: current.sys.country,
-//                     city: current,
-//                 }
-//             );
-//             alert(`${current.name} agregado a favoritos`);
-//         } catch (err) {
-//             alert('Error guardando favorito: ' + err.message);
-//         } finally {
-//             setSaving(false);
-//         }
-//     };
-
-//     if (error) return <div>Error: {error}</div>;
-//     if (!current) return <div>Search a city to see current weather.</div>;
-
-//     return (
-//         <div
-//             style={{
-//                 border: '1px solid #ccc',
-//                 padding: '1rem',
-//                 marginBottom: '1rem',
-//             }}
-//         >
-//             <h2>
-//                 {current.name}, {current.sys.country}
-//             </h2>
-//             <p>Temperature: {current.main.temp} °C</p>
-//             <p>Humidity: {current.main.humidity}%</p>
-//             {/* <p>Description: {current.weather[0].description}</p> */}
-//             <button onClick={handleSaveFavorite} disabled={saving}>
-//                 {saving ? 'Guardando...' : 'Guardar como favorito'}
-//             </button>
-//         </div>
-//     );
-// }
-
-// frontend/src/components/WeatherCard.jsx
-import { useContext, useEffect, useState } from 'react';
-import { FavoritesContext } from '../context/FavoritesContext';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useFavorites } from '../context/FavoritesContext';
 import { useTemperatureUnit } from '../context/TemperatureUnitContext';
 import api from '../services/api';
 import { formatShortDate, formatShortTime } from '../utils/TimeUtils';
 import TemperatureUnit from './atoms/TemperaturaUnit';
 
 export default function WeatherCard({ city }) {
-    const { refreshFavorites } = useContext(FavoritesContext);
+    const { refreshFavorites } = useFavorites();
     const { unit } = useTemperatureUnit();
     const [current, setCurrent] = useState(null);
     const [saving, setSaving] = useState(false);
+    const { isAnonymous } = useAuth();
 
     useEffect(() => {
         if (!city) return;
+        // api.get(`${process.env.REACT_APP_API_URL}/weather/current/${city.name}`)
+        //     .then((r) => setCurrent(r.data))
+        //     .catch(console.error);
+
         api.get(`${process.env.REACT_APP_API_URL}/weather/current/${city.name}`)
-            .then((r) => setCurrent(r.data))
+            .then((r) => {
+                console.log('\n------------- CURRENT WEATHER::', {
+                    r,
+                    data: r?.data,
+                });
+                setCurrent(r.data);
+            })
             .catch(console.error);
     }, [city, unit]);
 
@@ -92,7 +42,7 @@ export default function WeatherCard({ city }) {
                     city: current,
                 }
             );
-            await refreshFavorites(); // ← Notifica al context
+            await refreshFavorites();
         } catch (err) {
             console.error(err);
         } finally {
@@ -190,29 +140,27 @@ export default function WeatherCard({ city }) {
             <div className='card shadow-sm mb-4'>
                 <div className='card-body'>
                     <div className='d-flex justify-content-between align-items-start'>
-                        {/* Título */}
                         <h5 className='card-title mb-0'>
                             {current.name}{' '}
                             <small className='text-muted'>
                                 ({current.sys.country})
                             </small>
                         </h5>
-                        {/* <button onClick={handleSaveFavorite} disabled={saving}>
-                            {saving ? 'Guardando...' : 'Guardar como favorito'}
-                        </button> */}
-                        {saving ? (
-                            <StarButtonDisabled />
-                        ) : (
-                            <a
-                                href='#'
-                                onClick={handleSaveFavorite}
-                                disabled={saving}
-                            >
-                                <StarButtonDefault />
-                            </a>
+                        {!isAnonymous && (
+                            <>
+                                {saving ? (
+                                    <StarButtonDisabled />
+                                ) : (
+                                    <a
+                                        href='#'
+                                        onClick={handleSaveFavorite}
+                                        disabled={saving}
+                                    >
+                                        <StarButtonDefault />
+                                    </a>
+                                )}
+                            </>
                         )}
-                        {/* <StarButtonYellow />
-                        <StarButtonDefault /> */}
                     </div>
 
                     <div className='row mt-3'>

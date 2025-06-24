@@ -1,37 +1,28 @@
-// const redis = require('redis');
-// const client = redis.createClient({ url: process.env.REDIS_URL });
 
-// client.connect();
+const redis = require('redis');
+const redisClient = redis.createClient(process.env.REDIS_URL || 'redis://redis:6379');
 
-// module.exports = async (req, res, next) => {
-//     const key = `weather:${req.params.city}`;
-//     const data = await client.get(key);
-//     if (data) return res.json(JSON.parse(data));
-
-//     res.sendResponse = res.json;
-//     res.json = (body) => {
-//         client.setEx(key, 3600, JSON.stringify(body));
-//         res.sendResponse(body);
-//     };
-
-//     next();
-// };
-
-// =================================================
-
-const { createClient } = require('redis');
-const redisClient = createClient({ url: process.env.REDIS_URL || 'redis://redis:6379' });
-redisClient.connect().catch(console.error);
+redisClient.on('error', console.error);
+redisClient.on('ready', () => console.log('Redis listo'));
 
 module.exports = async (req, res, next) => {
-    const key = `weather:${req.params.city}`;
+    console.log("======= REDIS::", { path: req.path });
+
+    // const key = `weather:${req.params.city}`;
+    const key = `weather:${req.path}`;
     try {
-        const data = await redisClient.get(key);
-        if (data) return res.json(JSON.parse(data));
+        const data = await new Promise((resolve, reject) => {
+            redisClient.get(key, (err, reply) => err ? reject(err) : resolve(reply));
+        });
+        if (data) {
+            return res.json(JSON.parse(data));
+        }
 
         res.sendResponse = res.json;
         res.json = (body) => {
-            redisClient.setEx(key, 3600, JSON.stringify(body));
+            redisClient.setex(key, 35, JSON.stringify(body), (err) => {
+                if (err) console.error('Redis SETEX error', err);
+            });
             res.sendResponse(body);
         };
     } catch (e) {

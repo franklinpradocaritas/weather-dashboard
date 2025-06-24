@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
-// const rateLimiter = require('./middlewares/rateLimiter');
+const rateLimiter = require('./middlewares/rateLimiter');
 // const errorHandler = require('./middlewares/errorHandler');
 const weatherRoutes = require('./routes/weatherRoutes');
 const adminRoutes = require('./routes/adminRoutes');
@@ -13,7 +13,7 @@ app.use(helmet());
 app.use(cors());
 app.use(compression());
 app.use(express.json());
-// app.use(rateLimiter);
+app.use(rateLimiter);
 // app.use('/api', rateLimiter);
 
 app.use('/api/weather', weatherRoutes);

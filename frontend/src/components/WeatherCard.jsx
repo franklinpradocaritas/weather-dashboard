@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useError } from '../context/ErrorContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useTemperatureUnit } from '../context/TemperatureUnitContext';
 import api from '../services/api';
@@ -12,6 +13,7 @@ export default function WeatherCard({ city }) {
     const [current, setCurrent] = useState(null);
     const [saving, setSaving] = useState(false);
     const { isAnonymous } = useAuth();
+    const { errors } = useError();
 
     useEffect(() => {
         if (!city) return;
@@ -21,13 +23,11 @@ export default function WeatherCard({ city }) {
 
         api.get(`${process.env.REACT_APP_API_URL}/weather/current/${city.name}`)
             .then((r) => {
-                console.log('\n------------- CURRENT WEATHER::', {
-                    r,
-                    data: r?.data,
-                });
                 setCurrent(r.data);
             })
-            .catch(console.error);
+            .catch((err) => {
+                console.log(err);
+            });
     }, [city, unit]);
 
     const handleSaveFavorite = async () => {
@@ -118,25 +118,18 @@ export default function WeatherCard({ city }) {
         );
     };
 
-    if (!current) return <div>Busca una ciudad...</div>;
+    if (!current) return <div>City search...</div>;
+    if (errors.length) {
+        return (
+            <div className='card shadow-sm mb-4'>
+                <div className='card-body'>
+                    Weather Error: {errors[0].message}
+                </div>
+            </div>
+        );
+    }
     return (
         <>
-            {/* <div
-                style={{
-                    border: '1px solid #ccc',
-                    padding: '1rem',
-                    marginBottom: '1rem',
-                }}
-            >
-                <h2>
-                    {current.name}, {current.sys.country}
-                </h2>
-                <p>Temperature: {current.main.temp} °C</p>
-                <p>Humidity: {current.main.humidity}%</p>
-                <button onClick={handleSaveFavorite} disabled={saving}>
-                    {saving ? 'Guardando...' : 'Guardar como favorito'}
-                </button>
-            </div> */}
             <div className='card shadow-sm mb-4'>
                 <div className='card-body'>
                     <div className='d-flex justify-content-between align-items-start'>

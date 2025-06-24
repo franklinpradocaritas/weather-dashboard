@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ErrorBanner from '../components/atoms/ErrorBanner';
 import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
@@ -8,22 +9,16 @@ const LoginPage = () => {
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
-        console.log('01.Submitting', { username });
-
-        e.preventDefault();
-        console.log('02.Submitting');
-
-        if (username.trim().length === 0) {
-            console.log('03.Submitting');
-            return;
+        try {
+            e.preventDefault();
+            if (username.trim().length === 0) {
+                return;
+            }
+            await login({ username: username.trim() });
+            navigate('/');
+        } catch (err) {
+            console.error(err);
         }
-        console.log('04.Submitting');
-        await login({ username: username.trim() });
-        console.log('05.Submitting');
-        console.log('Navigating to home with username:', username);
-
-        navigate('/');
-        console.log('After navigating to home');
     };
 
     const handleGuest = () => {
@@ -33,6 +28,7 @@ const LoginPage = () => {
 
     return (
         <div style={styles.container}>
+            <ErrorBanner />
             <h2>Iniciar sesión</h2>
             <form onSubmit={handleSubmit} style={styles.form}>
                 <label htmlFor='username'>Nombre de usuario:</label>

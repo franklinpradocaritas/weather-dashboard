@@ -26,7 +26,6 @@ exports.addFavorite = async (req, res, next) => {
     try {
         const headerUserToken = req.headers[process.env.USER_TOKEN_HEADER];
         const userToken = req.userToken
-        // console.log("*******Adding favorite city:", { body: req.body, headerUserToken, userToken });
 
         const user_id = userToken,
             city_name = req.body.city_name,

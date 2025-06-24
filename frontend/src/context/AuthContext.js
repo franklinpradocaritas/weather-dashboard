@@ -74,17 +74,10 @@ export const AuthProvider = ({ children }) => {
             const stored = localStorage.getItem(APP_USER);
             if (stored) {
                 try {
-
                     const parsed = JSON.parse(stored);
-                    // Suponemos stored tiene al menos { username }
                     const { data: fresh } = await api.get(`${process.env.REACT_APP_API_URL}/admin/users/${parsed}`);
-                    console.log("001.BEFORE UPDATE SESSION:", { fresh, stored });
-
                     updateSession(fresh, false);
                 } catch (err) {
-                    alert("ERROR: USEEFFECT:", { stored, err });
-                    // Si falla (usuario borrado o token expiró), limpiar sesión
-                    console.log("002.BEFORE UPDATE SESSION:");
                     updateSession(null, false);
                 }
             }
@@ -95,9 +88,6 @@ export const AuthProvider = ({ children }) => {
     const login = useCallback(async ({ username }) => {
         console.log("A.*********Login user:", { username });
 
-        // const { data: existing } = await api.get(`${process.env.REACT_APP_API_URL}/admin/users/username`, {
-        //     params: { username }
-        // });
         const { data: existing } = await api.get(`${process.env.REACT_APP_API_URL}/admin/users/username/${username}`);
         console.log("B.*********Login user data:", { existing });
 

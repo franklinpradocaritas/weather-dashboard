@@ -1,12 +1,40 @@
 
 import axios from 'axios';
+import debounce from 'lodash.debounce';
+import { toast } from 'react-toastify';
 import { getCurrentTemperatureUnit } from '../context/TemperatureUnitContext';
-// import { toast } from 'react-toastify';
+
+export const APP_ERROR = 'app-error';
+export const RATE_LIMIT_EVENT = 'rate-limit-event';
+export const AUTH_EVENT = 'auth-event';
 
 const api = axios.create({
     baseURL: process.env.REACT_APP_API_URL,
     timeout: 10000
 });
+
+const notifyRateLimit = debounce(
+    (message) => {
+        toast.error(message ?? 'Too many request.');
+        // window.dispatchEvent(new CustomEvent(RATE_LIMIT_EVENT, {
+        //     detail: {
+        //         message
+        //     }
+        // }));
+
+        window.dispatchEvent(new CustomEvent(APP_ERROR, {
+            detail: {
+                category: RATE_LIMIT_EVENT,
+                code: 429,
+                message: message
+            },
+            bubbles: true,
+            composed: true
+        }));
+    },
+    1000,
+    { leading: true, trailing: false }
+);
 
 api.interceptors.request.use(
     (config) => {
@@ -35,22 +63,50 @@ api.interceptors.request.use(
     }
 );
 
-
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        const msg = error.response
-            ? `Error ${error.response.status}: ${error.response.data?.error || error.response.statusText}`
-            : `Network Error: ${error.message}`;
 
-        // toast.error(msg);
-        // Por ejemplo, si recibes 401, rediriges al login
-        if (error.response?.status === 401) {
-            // history.push('/login')
-            // alert('Unexpected error. Please login again.');
-            // toast.info('Sesión expirada, redirigiendo al login...');
+        console.log("--------------- AXIOS Interceptor ---------------", { error });
+
+        const status = error.response?.status;
+        const message = error.response?.data?.error;
+
+        switch (status) {
+            case 401:
+                // history.push('/login')
+                // toast.info('Sesión expirada, redirigiendo al login...');
+
+                window.dispatchEvent(new CustomEvent(APP_ERROR, {
+                    detail: {
+                        category: AUTH_EVENT,
+                        code: 401,
+                        message: 'Expired Session'
+                    }
+                }));
+                break;
+            case 429:
+                notifyRateLimit(message);
+                break;
+            default:
+                window.dispatchEvent(new CustomEvent(APP_ERROR, {
+                    detail: {
+                        category: 'GENERAL',
+                        code: 1,
+                        message: error.message
+                    }
+                }));
+                break;
         }
-        return Promise.reject(error);
+        // if (status === 429) {
+        //     notifyRateLimit(message);
+        // }
+
+        // if (error.response?.status === 401) {
+        //     // history.push('/login')
+        //     // toast.info('Sesión expirada, redirigiendo al login...');
+        // }
+        // return Promise.reject(error);
     }
 );
 
